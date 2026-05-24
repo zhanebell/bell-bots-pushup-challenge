@@ -39,6 +39,7 @@ const normalizeCadetName = (input: string) => {
 type GoalType = 'daily' | 'weekly' | 'challenge'
 
 function App() {
+  const [isPhoneLayout, setIsPhoneLayout] = useState(false)
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -71,6 +72,14 @@ function App() {
 
   const [info, setInfo] = useState('')
   const timerPanelRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 680px)')
+    const updateLayout = () => setIsPhoneLayout(mql.matches)
+    updateLayout()
+    mql.addEventListener('change', updateLayout)
+    return () => mql.removeEventListener('change', updateLayout)
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -525,41 +534,81 @@ function App() {
               </div>
             </div>
 
-            <div className="weekdays">
-              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-            </div>
+            {!isPhoneLayout ? (
+              <>
+                <div className="weekdays">
+                  <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                </div>
 
-            <div className="calendar-grid">
-              {monthDays.map((day) => {
-                const todayISO = getTodayISO()
-                const yesterdayISO = getYesterdayISO()
-                const dateKey = day.format('YYYY-MM-DD')
-                const reps = dailyTotals[dateKey] ?? 0
-                const editable = dateKey === todayISO || dateKey === yesterdayISO
-                const selected = selectedEditDate === dateKey
-                const inMonth = day.isSame(monthCursor, 'month')
-                return (
-                  <button
-                    key={dateKey}
-                    type="button"
-                    className={`day-cell${selected ? ' selected' : ''}${editable ? ' editable' : ''}${inMonth ? '' : ' muted'}`}
-                    onClick={() => {
-                      if (!editable) {
-                        return
-                      }
-                      setSelectedEditDate(dateKey)
-                      setEditTotalReps(String(reps))
-                      setDayEditMsg('')
-                      setIsDayEditOpen(true)
-                    }}
-                  >
-                    <span className="day-number">{day.date()}</span>
-                    <span className="day-reps">{reps} reps</span>
-                    <span className="day-needed">Need avg: {requiredForDay(day)}</span>
-                  </button>
-                )
-              })}
-            </div>
+                <div className="calendar-grid">
+                  {monthDays.map((day) => {
+                    const todayISO = getTodayISO()
+                    const yesterdayISO = getYesterdayISO()
+                    const dateKey = day.format('YYYY-MM-DD')
+                    const reps = dailyTotals[dateKey] ?? 0
+                    const editable = dateKey === todayISO || dateKey === yesterdayISO
+                    const selected = selectedEditDate === dateKey
+                    const inMonth = day.isSame(monthCursor, 'month')
+                    return (
+                      <button
+                        key={dateKey}
+                        type="button"
+                        className={`day-cell${selected ? ' selected' : ''}${editable ? ' editable' : ''}${inMonth ? '' : ' muted'}`}
+                        onClick={() => {
+                          if (!editable) {
+                            return
+                          }
+                          setSelectedEditDate(dateKey)
+                          setEditTotalReps(String(reps))
+                          setDayEditMsg('')
+                          setIsDayEditOpen(true)
+                        }}
+                      >
+                        <span className="day-number">{day.date()}</span>
+                        <span className="day-reps">{reps} reps</span>
+                        <span className="day-needed">Need avg: {requiredForDay(day)}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="calendar-list">
+                {monthDays
+                  .filter((day) => day.isSame(monthCursor, 'month'))
+                  .map((day) => {
+                    const todayISO = getTodayISO()
+                    const yesterdayISO = getYesterdayISO()
+                    const dateKey = day.format('YYYY-MM-DD')
+                    const reps = dailyTotals[dateKey] ?? 0
+                    const editable = dateKey === todayISO || dateKey === yesterdayISO
+                    const selected = selectedEditDate === dateKey
+                    return (
+                      <article key={dateKey} className={`day-list-item${selected ? ' selected' : ''}${editable ? ' editable' : ''}`}>
+                        <div>
+                          <p className="day-list-title">{day.format('ddd, MMM D')}</p>
+                          <p className="day-list-meta">{reps} reps • Need avg: {requiredForDay(day)}</p>
+                        </div>
+                        <button
+                          className="ghost"
+                          onClick={() => {
+                            if (!editable) {
+                              return
+                            }
+                            setSelectedEditDate(dateKey)
+                            setEditTotalReps(String(reps))
+                            setDayEditMsg('')
+                            setIsDayEditOpen(true)
+                          }}
+                          disabled={!editable}
+                        >
+                          {editable ? 'Edit' : 'Locked'}
+                        </button>
+                      </article>
+                    )
+                  })}
+              </div>
+            )}
             <p className="meta">{info}</p>
           </section>
 
