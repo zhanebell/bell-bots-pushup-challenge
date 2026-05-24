@@ -180,6 +180,10 @@ select {
   flex-wrap: wrap;
 }
 
+.tabs-select {
+  min-width: 220px;
+}
+
 .insights-grid {
   width: min(1060px, 100%);
   margin-inline: auto;

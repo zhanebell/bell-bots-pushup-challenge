@@ -40,6 +40,7 @@ type GoalType = 'daily' | 'weekly' | 'challenge'
 
 function App() {
   const [isPhoneLayout, setIsPhoneLayout] = useState(false)
+  const [showIntegrityModal, setShowIntegrityModal] = useState(false)
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -52,7 +53,7 @@ function App() {
   const [isSignup, setIsSignup] = useState(true)
   const [authMsg, setAuthMsg] = useState('')
 
-  const [monthCursor, setMonthCursor] = useState(dayjs().startOf('month'))
+  const [weekCursor, setWeekCursor] = useState(dayjs().startOf('isoWeek'))
   const [selectedEditDate, setSelectedEditDate] = useState<string | null>(getTodayISO())
   const [editTotalReps, setEditTotalReps] = useState('0')
   const [isDayEditOpen, setIsDayEditOpen] = useState(false)
@@ -68,7 +69,7 @@ function App() {
   const [allTimeBoard, setAllTimeBoard] = useState<LeaderboardEntry[]>([])
   const [weekBoard, setWeekBoard] = useState<LeaderboardEntry[]>([])
   const [dayBoard, setDayBoard] = useState<LeaderboardEntry[]>([])
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'leaderboards' | 'badges'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'mission' | 'dashboard' | 'leaderboards' | 'badges'>('dashboard')
 
   const [info, setInfo] = useState('')
   const timerPanelRef = useRef<HTMLElement>(null)
@@ -116,12 +117,23 @@ function App() {
       const { data } = await supabase.auth.getSession()
       setSession(data.session)
       setUser(data.session?.user ?? null)
+      if (data.session?.user) {
+        setActiveTab('dashboard')
+        setShowIntegrityModal(true)
+      }
     }
 
     initAuth()
-    const { data: listener } = supabase.auth.onAuthStateChange((_, nextSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
       setSession(nextSession)
       setUser(nextSession?.user ?? null)
+      if (event === 'SIGNED_IN' && nextSession?.user) {
+        setActiveTab('dashboard')
+        setShowIntegrityModal(true)
+      }
+      if (event === 'SIGNED_OUT') {
+        setShowIntegrityModal(false)
+      }
     })
     return () => listener.subscription.unsubscribe()
   }, [])
@@ -381,17 +393,14 @@ function App() {
     await document.exitFullscreen()
   }
 
-  const monthDays = useMemo(() => {
-    const start = monthCursor.startOf('month').startOf('week')
-    const end = monthCursor.endOf('month').endOf('week')
+  const weekDays = useMemo(() => {
+    const start = weekCursor.startOf('isoWeek')
     const days: dayjs.Dayjs[] = []
-    let cursor = start
-    while (cursor.isSame(end, 'day') || cursor.isBefore(end, 'day')) {
-      days.push(cursor)
-      cursor = cursor.add(1, 'day')
+    for (let i = 0; i < 7; i += 1) {
+      days.push(start.add(i, 'day'))
     }
     return days
-  }, [monthCursor])
+  }, [weekCursor])
 
   const requiredForDay = (day: dayjs.Dayjs) => {
     if (!profile || profile.goal_target <= 0) {
@@ -440,25 +449,42 @@ function App() {
       <header className="topbar">
         <div>
           <p className="top-label">C/Bell&apos;s Push-Up Challenge</p>
-          <h1>Summer Mission Board</h1>
+          <h1>SUMMER 2026 CHALLENGE</h1>
         </div>
         {session ? <button className="ghost" onClick={async () => supabase.auth.signOut()}>Sign Out</button> : null}
       </header>
 
       {session ? (
         <nav className="top-tabs card" aria-label="Primary Tabs">
-          <button className={activeTab === 'dashboard' ? '' : 'ghost'} onClick={() => setActiveTab('dashboard')}>Dashboard</button>
-          <button className={activeTab === 'leaderboards' ? '' : 'ghost'} onClick={() => setActiveTab('leaderboards')}>Leaderboards</button>
-          <button className={activeTab === 'badges' ? '' : 'ghost'} onClick={() => setActiveTab('badges')}>Badges</button>
+          {!isPhoneLayout ? (
+            <>
+              <button className={activeTab === 'mission' ? '' : 'ghost'} onClick={() => setActiveTab('mission')}>Mission Brief</button>
+              <button className={activeTab === 'dashboard' ? '' : 'ghost'} onClick={() => setActiveTab('dashboard')}>Dashboard</button>
+              <button className={activeTab === 'leaderboards' ? '' : 'ghost'} onClick={() => setActiveTab('leaderboards')}>Leaderboards</button>
+              <button className={activeTab === 'badges' ? '' : 'ghost'} onClick={() => setActiveTab('badges')}>Badges</button>
+            </>
+          ) : (
+            <label>
+              Section
+              <select className="tabs-select" value={activeTab} onChange={(e) => setActiveTab(e.target.value as typeof activeTab)}>
+                <option value="mission">Mission Brief</option>
+                <option value="dashboard">Dashboard</option>
+                <option value="leaderboards">Leaderboards</option>
+                <option value="badges">Badges</option>
+              </select>
+            </label>
+          )}
         </nav>
       ) : null}
 
-      <section className="mission card">
-        <h2>Mission Brief</h2>
-        <p>
-          Built by C/Bell to drive competition, morale, and fitness over summer break. Challenge window is {challengeStart.format('MMM D')} to {challengeEnd.format('MMM D, YYYY')}. Integrity First: only honest reps count.
-        </p>
-      </section>
+      {!session || activeTab === 'mission' ? (
+        <section className="mission card">
+          <h2>Mission Brief</h2>
+          <p>
+            Built by C/Bell to drive competition, morale, and fitness over summer break. Challenge window is {challengeStart.format('MMM D')} to {challengeEnd.format('MMM D, YYYY')}. Integrity First: only honest reps count.
+          </p>
+        </section>
+      ) : null}
 
       {!session ? (
         <section className="card auth-card">
@@ -513,7 +539,7 @@ function App() {
               <p className="display">{timerDisplay}</p>
               <div className="controls">
                 <button onClick={toggleTimer}>{timerRunning ? 'STOP' : 'START'}</button>
-                <button className="ghost" onClick={toggleTimerFullscreen}>{isTimerFullscreen ? 'EXIT FULL SCREEN' : 'FULL SCREEN'}</button>
+                  {!isPhoneLayout ? <button className="ghost" onClick={toggleTimerFullscreen}>{isTimerFullscreen ? 'EXIT FULL SCREEN' : 'FULL SCREEN'}</button> : null}
                 <button onClick={finishSession}>FINISH SESSION</button>
               </div>
             </div>
@@ -528,32 +554,31 @@ function App() {
             <div className="calendar-head">
               <h2>Calendar Log</h2>
               <div className="controls">
-                <button className="ghost" onClick={() => setMonthCursor((prev) => prev.subtract(1, 'month'))}>Prev</button>
-                <p className="calendar-month">{monthCursor.format('MMMM YYYY')}</p>
-                <button className="ghost" onClick={() => setMonthCursor((prev) => prev.add(1, 'month'))}>Next</button>
+                <button className="ghost" onClick={() => setWeekCursor((prev) => prev.subtract(1, 'week'))}>Prev</button>
+                <p className="calendar-month">{weekCursor.startOf('isoWeek').format('MMM D')} - {weekCursor.startOf('isoWeek').add(6, 'day').format('MMM D, YYYY')}</p>
+                <button className="ghost" onClick={() => setWeekCursor((prev) => prev.add(1, 'week'))}>Next</button>
               </div>
             </div>
 
             {!isPhoneLayout ? (
               <>
                 <div className="weekdays">
-                  <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                  <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
                 </div>
 
                 <div className="calendar-grid">
-                  {monthDays.map((day) => {
+                  {weekDays.map((day) => {
                     const todayISO = getTodayISO()
                     const yesterdayISO = getYesterdayISO()
                     const dateKey = day.format('YYYY-MM-DD')
                     const reps = dailyTotals[dateKey] ?? 0
                     const editable = dateKey === todayISO || dateKey === yesterdayISO
                     const selected = selectedEditDate === dateKey
-                    const inMonth = day.isSame(monthCursor, 'month')
                     return (
                       <button
                         key={dateKey}
                         type="button"
-                        className={`day-cell${selected ? ' selected' : ''}${editable ? ' editable' : ''}${inMonth ? '' : ' muted'}`}
+                        className={`day-cell${selected ? ' selected' : ''}${editable ? ' editable' : ''}`}
                         onClick={() => {
                           if (!editable) {
                             return
@@ -574,9 +599,7 @@ function App() {
               </>
             ) : (
               <div className="calendar-list">
-                {monthDays
-                  .filter((day) => day.isSame(monthCursor, 'month'))
-                  .map((day) => {
+                {weekDays.map((day) => {
                     const todayISO = getTodayISO()
                     const yesterdayISO = getYesterdayISO()
                     const dateKey = day.format('YYYY-MM-DD')
@@ -677,6 +700,18 @@ function App() {
           </div>
         </section>
       )}
+
+      {session && showIntegrityModal ? (
+        <div className="modal-backdrop" onClick={() => setShowIntegrityModal(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <h2>Integrity Standard</h2>
+            <p>By using this app, you agree to uphold the standard of integrity and log only honest reps.</p>
+            <div className="controls">
+              <button onClick={() => setShowIntegrityModal(false)}>I Understand</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   )
 }
