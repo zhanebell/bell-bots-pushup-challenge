@@ -36,6 +36,24 @@ const normalizeCadetName = (input: string) => {
   return `C/${trimmed}`
 }
 
+const friendlyAuthMessage = (raw: string) => {
+  const msg = raw.toLowerCase()
+
+  if (msg.includes('email rate limit exceeded')) {
+    return 'Too many signup emails were sent recently. Try Sign In first, or wait about an hour and try again. Admin fix: configure custom SMTP in Supabase to raise this limit.'
+  }
+
+  if (msg.includes('invalid login credentials')) {
+    return 'Invalid email or password. If you already signed up, try resetting your password.'
+  }
+
+  if (msg.includes('user already registered')) {
+    return 'This email is already registered. Use Sign In instead.'
+  }
+
+  return raw
+}
+
 type GoalType = 'daily' | 'weekly' | 'challenge'
 
 function App() {
@@ -266,7 +284,7 @@ function App() {
         options: { data: { cadet_name: normalized } },
       })
       if (error) {
-        setAuthMsg(error.message)
+        setAuthMsg(friendlyAuthMessage(error.message))
         return
       }
       if (data.user && data.session) {
@@ -278,7 +296,7 @@ function App() {
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setAuthMsg(error.message)
+      setAuthMsg(friendlyAuthMessage(error.message))
       return
     }
     setAuthMsg('Signed in.')
