@@ -1,0 +1,445 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;700&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg: #050706;
+  --panel: #0a100d;
+  --panel-2: #121a16;
+  --line: #243428;
+  --line-soft: #1b281f;
+  --text: #cad7cb;
+  --title: #f3fff5;
+  --accent: #8cff2f;
+  --accent-2: #00e77b;
+  --danger: #ff6b6b;
+  --shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(140, 255, 47, 0.08), transparent 30%),
+    radial-gradient(circle at 85% 0, rgba(0, 231, 123, 0.12), transparent 20%),
+    linear-gradient(120deg, #020302, var(--bg) 40%, #050a07);
+  color: var(--text);
+  font-family: 'Oxanium', sans-serif;
+}
+
+#root {
+  width: min(1240px, 96vw);
+  margin: 0 auto;
+  padding: 1.25rem 0 3.2rem;
+}
+
+.app-shell {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: min(1060px, 100%);
+  margin-inline: auto;
+}
+
+.top-label {
+  margin: 0;
+  letter-spacing: 0.2rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--title);
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+}
+
+h2 {
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+}
+
+p {
+  margin: 0;
+}
+
+.card {
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, rgba(14, 21, 16, 0.95), rgba(10, 14, 11, 0.95));
+  border-radius: 14px;
+  padding: 1.1rem;
+  box-shadow: var(--shadow);
+}
+
+.mission,
+.auth-card,
+.message-card,
+.entry-card,
+.goals-card,
+.badges-card {
+  width: min(1060px, 100%);
+  margin-inline: auto;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  border: 1px solid var(--line);
+  color: #091106;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--line);
+}
+
+form,
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: end;
+}
+
+label {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 170px;
+  font-size: 0.9rem;
+}
+
+input,
+select {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  padding: 0.55rem 0.6rem;
+}
+
+.meta {
+  color: #8ea091;
+  font-size: 0.85rem;
+}
+
+.mission p {
+  margin-top: 0.5rem;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  width: min(1060px, 100%);
+  margin-inline: auto;
+}
+
+.kpi-grid strong {
+  font-size: 1.8rem;
+  color: var(--accent);
+}
+
+.message-card {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.top-tabs {
+  width: min(1060px, 100%);
+  margin-inline: auto;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.insights-grid {
+  width: min(1060px, 100%);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1rem;
+}
+
+.calendar-card {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.calendar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.calendar-month {
+  min-width: 150px;
+  text-align: center;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #95a997;
+}
+
+.weekdays span {
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.day-cell {
+  min-height: 95px;
+  padding: 0.5rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+  display: grid;
+  align-content: start;
+  gap: 0.2rem;
+  text-align: left;
+}
+
+.day-cell .day-number {
+  font-weight: 700;
+  color: var(--title);
+}
+
+.day-cell .day-reps,
+.day-cell .day-needed {
+  font-size: 0.75rem;
+  color: #9ab09d;
+}
+
+.day-cell.editable {
+  border-color: #8cff2f;
+}
+
+.day-cell.selected {
+  box-shadow: inset 0 0 0 1px #8cff2f;
+}
+
+.day-cell.muted {
+  opacity: 0.5;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 4, 3, 0.7);
+  display: grid;
+  place-items: center;
+  z-index: 90;
+}
+
+.modal-card {
+  width: min(460px, 92vw);
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, rgba(14, 21, 16, 0.98), rgba(10, 14, 11, 0.98));
+  border-radius: 14px;
+  padding: 1rem;
+  display: grid;
+  gap: 0.8rem;
+  box-shadow: var(--shadow);
+}
+
+.quick-add-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.goal-hint {
+  width: 100%;
+  margin-top: 0.2rem;
+}
+
+.timer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  min-height: 360px;
+  width: min(1060px, 100%);
+  margin-inline: auto;
+}
+
+:fullscreen .timer-grid {
+  width: min(1200px, 96vw);
+  margin: auto;
+}
+
+.timer-side {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  text-align: center;
+  gap: 0.9rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.display {
+  margin: 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(140, 255, 47, 0.35);
+}
+
+.controls {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.laps {
+  width: min(280px, 85%);
+  max-height: 120px;
+  overflow: auto;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.push-side {
+  cursor: pointer;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  width: min(1060px, 100%);
+  margin-inline: auto;
+}
+
+.board-list {
+  list-style: decimal;
+  margin: 0.9rem 0 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.board-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.badge {
+  border: 1px solid var(--line);
+  color: #839282;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.badge.on {
+  color: #0c1509;
+  background: linear-gradient(90deg, var(--accent), #b7ff5c);
+  border-color: #9dff56;
+}
+
+.share-card {
+  width: 500px;
+  max-width: 90vw;
+  background: linear-gradient(140deg, #060908, #101d16);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.1rem;
+  color: var(--title);
+  display: grid;
+  gap: 0.3rem;
+  margin: 0 auto;
+}
+
+@media (max-width: 980px) {
+  #root {
+    width: min(100%, 96vw);
+    padding-top: 0.9rem;
+  }
+
+  .topbar,
+  .mission,
+  .auth-card,
+  .message-card,
+  .entry-card,
+  .goals-card,
+  .badges-card,
+  .kpi-grid,
+  .timer-grid,
+  .board-grid {
+    width: 100%;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .board-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-grid,
+  .weekdays {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .day-cell {
+    min-height: 84px;
+  }
+}
